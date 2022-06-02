@@ -1,26 +1,29 @@
 package elagin.dmitrii.ExchangeRateVisualizationService.config;
 
+import elagin.dmitrii.ExchangeRateVisualizationService.service.exchange_rate_tracking.OpenExchangeRatesClient;
+import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
+import feign.slf4j.Slf4jLogger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ApplicationConfig {
 
-    @Bean
-    public OkHttpClient okHttpClient(){
-        return new OkHttpClient();
-    }
+    @Value("${service.openexchangerates.url}")
+    private String openExchangeRatesServiceUrl;
 
     @Bean
-    public GsonEncoder gsonEncoder() {
-        return new GsonEncoder();
-    }
+    public OpenExchangeRatesClient openExchangeRatesClient() {
 
-    @Bean
-    public GsonDecoder gsonDecoder() {
-        return new GsonDecoder();
+        return Feign.builder()
+                .client(new OkHttpClient())
+                .encoder(new GsonEncoder())
+                .decoder(new GsonDecoder())
+                .logger(new Slf4jLogger(OpenExchangeRatesClient.class))
+                .target(OpenExchangeRatesClient.class, openExchangeRatesServiceUrl);
     }
 }

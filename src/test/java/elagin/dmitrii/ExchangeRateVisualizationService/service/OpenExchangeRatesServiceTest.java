@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +23,7 @@ class OpenExchangeRatesServiceTest {
     void getCurrenciesShouldNotBeNullOrEmpty() {
        final var currencies = service.getCurrencies();
 
-       assertNotNull(currencies);
+        assertNotNull(currencies);
         assertFalse(currencies.isEmpty());
     }
 
@@ -48,5 +50,21 @@ class OpenExchangeRatesServiceTest {
         assertEquals(0, rates.get("USD").compareTo(BigDecimal.ONE));
     }
 
+    @Test
+    void getHistoricalRatesShouldNotBeNullOrEmpty() {
+        final var rates = service.getHistoricalRates(LocalDate.now().minus(1, ChronoUnit.YEARS));
 
+        assertNotNull(rates);
+        assertFalse(rates.isEmpty());
+    }
+
+    @Test
+    void getHistoricalRatesShouldReturnCorrectRates() {
+        final var rates = service.getHistoricalRates(LocalDate.of(2002, 1, 1));
+
+        assertEquals(0, rates.get("USD").compareTo(BigDecimal.ONE));
+        assertEquals(0, rates.get("EUR").compareTo(BigDecimal.valueOf(1.125715)));
+        assertEquals(0, rates.get("RUB").compareTo(BigDecimal.valueOf(30.345058)));
+
+    }
 }
