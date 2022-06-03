@@ -1,8 +1,7 @@
-package elagin.dmitrii.ExchangeRateVisualizationService.service;
+package elagin.dmitrii.ExchangeRateVisualizationService.service.exchange_rate_tracking;
 
 import elagin.dmitrii.ExchangeRateVisualizationService.error.InvalidCurrencyCodeException;
 import elagin.dmitrii.ExchangeRateVisualizationService.error.InvalidDateException;
-import elagin.dmitrii.ExchangeRateVisualizationService.service.exchange_rate_tracking.ExchangeRateTrackingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

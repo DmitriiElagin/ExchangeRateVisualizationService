@@ -1,6 +1,7 @@
 package elagin.dmitrii.ExchangeRateVisualizationService.config;
 
 import elagin.dmitrii.ExchangeRateVisualizationService.service.exchange_rate_tracking.OpenExchangeRatesClient;
+import elagin.dmitrii.ExchangeRateVisualizationService.service.gif.GiphyClient;
 import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
@@ -16,6 +17,9 @@ public class ApplicationConfig {
     @Value("${service.openexchangerates.url}")
     private String openExchangeRatesServiceUrl;
 
+    @Value("${service.giphy.url}")
+    private String giphyServiceUrl;
+
     @Bean
     public OpenExchangeRatesClient openExchangeRatesClient() {
 
@@ -25,5 +29,16 @@ public class ApplicationConfig {
                 .decoder(new GsonDecoder())
                 .logger(new Slf4jLogger(OpenExchangeRatesClient.class))
                 .target(OpenExchangeRatesClient.class, openExchangeRatesServiceUrl);
+    }
+
+    @Bean
+    public GiphyClient giphyClient() {
+
+        return Feign.builder()
+                .client(new OkHttpClient())
+                .encoder(new GsonEncoder())
+                .decoder(new GsonDecoder())
+                .logger(new Slf4jLogger(GiphyClient.class))
+                .target(GiphyClient.class, giphyServiceUrl);
     }
 }

@@ -32,7 +32,7 @@ public class OpenExchangeRatesService implements ExchangeRateTrackingService {
     @Override
     public Map<String, String> getCurrencies() {
         if (lastUpdate == null || lastUpdate.isBefore(LocalDate.now())) {
-            logger.debug("Запрос списка валют у сервиса");
+            logger.info("Запрос списка валют у сервиса");
             currencies = Collections.unmodifiableMap(client.getCurrencies());
         }
 
@@ -41,22 +41,23 @@ public class OpenExchangeRatesService implements ExchangeRateTrackingService {
 
     @Override
     public Map<String, BigDecimal> getLatestRates() {
-        return client.getLatestRates(appId).getRates();
+        return client.getLatestRates(appId).rates;
     }
 
     @Override
     public Map<String, BigDecimal> getHistoricalRates(LocalDate date) {
         if (date.isAfter(LocalDate.now())) {
+            logger.error("Неверная дата - {}", date);
             throw new InvalidDateException("The date '" + date + "' is invalid");
         }
 
-        return client.getHistoricalRates(date, appId).getRates();
+        return client.getHistoricalRates(date, appId).rates;
     }
 
     @Override
     public int compareLatestRateWithYesterday(String code) {
         if (lastUpdate == null || lastUpdate.isBefore(LocalDate.now())) {
-            logger.debug("Список и курсы валют устарели. Запрос у сервиса");
+            logger.info("Список и курсы валют устарели. Запрос у сервиса");
             getCurrencies();
 
             yesterdayRates = getHistoricalRates(LocalDate.now().minusDays(1));
