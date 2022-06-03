@@ -10,4 +10,6 @@ public interface ExchangeRateTrackingService {
     Map<String, BigDecimal> getLatestRates();
 
     Map<String, BigDecimal> getHistoricalRates(LocalDate date);
+
+    int compareLatestRateWithYesterday(String code);
 }
