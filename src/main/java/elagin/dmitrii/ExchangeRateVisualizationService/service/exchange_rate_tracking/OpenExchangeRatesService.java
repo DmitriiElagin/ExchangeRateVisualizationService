@@ -18,9 +18,6 @@ public class OpenExchangeRatesService implements ExchangeRateTrackingService {
     private static final Logger logger = LoggerFactory.getLogger(OpenExchangeRatesService.class);
 
     private final OpenExchangeRatesClient client;
-    private Map<String, String> currencies;
-    private Map<String, BigDecimal> yesterdayRates;
-    private LocalDate lastUpdate;
 
     @Value("${service.openexchangerates.app-id}")
     private String appId;
@@ -31,12 +28,7 @@ public class OpenExchangeRatesService implements ExchangeRateTrackingService {
 
     @Override
     public Map<String, String> getCurrencies() {
-        if (lastUpdate == null || lastUpdate.isBefore(LocalDate.now())) {
-            logger.info("Запрос списка валют у сервиса");
-            currencies = Collections.unmodifiableMap(client.getCurrencies());
-        }
-
-        return currencies;
+        return Collections.unmodifiableMap(client.getCurrencies());
     }
 
     @Override
@@ -56,20 +48,22 @@ public class OpenExchangeRatesService implements ExchangeRateTrackingService {
 
     @Override
     public int compareLatestRateWithYesterday(String code) {
-        if (lastUpdate == null || lastUpdate.isBefore(LocalDate.now())) {
-            logger.info("Список и курсы валют устарели. Запрос у сервиса");
-            getCurrencies();
-
-            yesterdayRates = getHistoricalRates(LocalDate.now().minusDays(1));
-            lastUpdate = LocalDate.now();
-        }
+        final var currencies = getCurrencies();
 
         if (!currencies.containsKey(code)) {
             logger.error("Неверный код валюты - {}", code);
             throw new InvalidCurrencyCodeException("The currency code '" + code + "' is invalid or unsupported");
         }
 
+        var yesterday = LocalDate.now().minusDays(1);
+
+        final var yesterdayRates = getHistoricalRates(yesterday);
+
         final var latest = getLatestRates().get(code);
+        logger.info("Последний курс {} = {}", code, latest);
+
+        final var yesterdayRate = yesterdayRates.get(code);
+        logger.info("Курс {} за {} = {}", code, yesterday, yesterdayRate);
 
         return latest.compareTo(yesterdayRates.get(code));
     }

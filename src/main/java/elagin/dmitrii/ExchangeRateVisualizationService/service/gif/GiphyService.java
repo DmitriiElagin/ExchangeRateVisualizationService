@@ -20,8 +20,6 @@ public class GiphyService implements GifService {
         return client
                 .getRandomGifByTag(apiKey, tag)
                 .data
-                .images
-                .original
-                .url;
+                .embed_url;
     }
 }
